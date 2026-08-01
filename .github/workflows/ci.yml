@@ -48,5 +48,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Validate Docker Compose
-        run: docker compose config --quiet
-
+        run: |
+          docker compose config --quiet
+          docker compose --env-file .env.production.example -f docker-compose.low-memory.yml config --quiet

@@ -1,0 +1,148 @@
+name: resilience-lab
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    command:
+      - postgres
+      - -c
+      - shared_buffers=32MB
+      - -c
+      - max_connections=20
+      - -c
+      - work_mem=1MB
+      - -c
+      - maintenance_work_mem=16MB
+      - -c
+      - wal_buffers=4MB
+    environment:
+      POSTGRES_DB: resilience_lab
+      POSTGRES_USER: resilience
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Copy .env.production.example to .env and set POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resilience -d resilience_lab"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    mem_limit: 192m
+    memswap_limit: 320m
+    cpus: 0.25
+    pids_limit: 100
+    shm_size: 64mb
+    logging: *default-logging
+
+  service-registry:
+    image: ghcr.io/mrmr888/resilience-lab:service-registry-${IMAGE_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      JAVA_TOOL_OPTIONS: >-
+        -XX:+UseSerialGC -XX:MaxRAMPercentage=50.0
+        -XX:InitialRAMPercentage=15.0 -XX:MaxMetaspaceSize=96m
+        -Xss512k -Dfile.encoding=UTF-8
+    expose:
+      - "8761"
+    mem_limit: 300m
+    memswap_limit: 480m
+    cpus: 0.35
+    pids_limit: 120
+    init: true
+    stop_grace_period: 20s
+    logging: *default-logging
+
+  inventory-service:
+    image: ghcr.io/mrmr888/resilience-lab:inventory-service-${IMAGE_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      EUREKA_DEFAULT_ZONE: http://service-registry:8761/eureka/
+      JAVA_TOOL_OPTIONS: >-
+        -XX:+UseSerialGC -XX:MaxRAMPercentage=50.0
+        -XX:InitialRAMPercentage=15.0 -XX:MaxMetaspaceSize=96m
+        -Xss512k -Dfile.encoding=UTF-8
+    depends_on:
+      - service-registry
+    mem_limit: 300m
+    memswap_limit: 480m
+    cpus: 0.35
+    pids_limit: 120
+    init: true
+    stop_grace_period: 20s
+    logging: *default-logging
+
+  order-service:
+    image: ghcr.io/mrmr888/resilience-lab:order-service-${IMAGE_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      EUREKA_DEFAULT_ZONE: http://service-registry:8761/eureka/
+      DB_URL: jdbc:postgresql://postgres:5432/resilience_lab
+      DB_USERNAME: resilience
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Copy .env.production.example to .env and set POSTGRES_PASSWORD}
+      JAVA_TOOL_OPTIONS: >-
+        -XX:+UseSerialGC -XX:MaxRAMPercentage=50.0
+        -XX:InitialRAMPercentage=15.0 -XX:MaxMetaspaceSize=128m
+        -Xss512k -Dfile.encoding=UTF-8
+    depends_on:
+      postgres:
+        condition: service_healthy
+      service-registry:
+        condition: service_started
+    mem_limit: 420m
+    memswap_limit: 700m
+    cpus: 0.50
+    pids_limit: 140
+    init: true
+    stop_grace_period: 30s
+    logging: *default-logging
+
+  api-gateway:
+    image: ghcr.io/mrmr888/resilience-lab:api-gateway-${IMAGE_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      EUREKA_DEFAULT_ZONE: http://service-registry:8761/eureka/
+      FRONTEND_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost}
+      JAVA_TOOL_OPTIONS: >-
+        -XX:+UseSerialGC -XX:MaxRAMPercentage=50.0
+        -XX:InitialRAMPercentage=15.0 -XX:MaxMetaspaceSize=96m
+        -Xss512k -Dfile.encoding=UTF-8
+    depends_on:
+      - service-registry
+      - inventory-service
+      - order-service
+    mem_limit: 340m
+    memswap_limit: 540m
+    cpus: 0.35
+    pids_limit: 140
+    init: true
+    stop_grace_period: 20s
+    logging: *default-logging
+
+  web:
+    image: ghcr.io/mrmr888/resilience-lab:web-${IMAGE_VERSION:-latest}
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+    mem_limit: 64m
+    memswap_limit: 96m
+    cpus: 0.10
+    pids_limit: 40
+    init: true
+    stop_grace_period: 10s
+    logging: *default-logging
+
+volumes:
+  postgres-data:
