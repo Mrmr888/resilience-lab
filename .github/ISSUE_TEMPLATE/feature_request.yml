@@ -1,0 +1,35 @@
+name: Feature request
+description: 提议一个可验证的改进
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 要解决的问题
+      description: 请先描述场景和痛点，而不只是方案。
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 建议方案
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: 考虑过的替代方案
+  - type: dropdown
+    id: area
+    attributes:
+      label: 影响范围
+      options:
+        - Backend
+        - Frontend
+        - Observability
+        - Deployment
+        - Documentation
+    validations:
+      required: true
+

@@ -1,0 +1,67 @@
+<svg width="1200" height="420" viewBox="0 0 1200 420" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="420" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#07111F"/>
+      <stop offset="1" stop-color="#0B2031"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="310" y1="120" x2="820" y2="330" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#78ECDD"/>
+      <stop offset="0.55" stop-color="#4DCEE3"/>
+      <stop offset="1" stop-color="#88ADFF"/>
+    </linearGradient>
+    <pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse">
+      <path d="M38 0H0V38" stroke="#6DA0BD" stroke-opacity="0.07"/>
+    </pattern>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+  <rect width="1200" height="420" rx="24" fill="url(#bg)"/>
+  <rect width="1200" height="420" rx="24" fill="url(#grid)"/>
+  <circle cx="1010" cy="74" r="210" fill="#27C4D4" fill-opacity="0.06"/>
+  <circle cx="110" cy="420" r="190" fill="#357BCB" fill-opacity="0.05"/>
+
+  <g transform="translate(78 79)">
+    <rect width="62" height="62" rx="16" fill="url(#accent)"/>
+    <text x="15" y="40" fill="#071520" font-family="ui-monospace, monospace" font-size="21" font-weight="800">R/</text>
+    <text x="82" y="27" fill="#EAF4FA" font-family="Inter, Arial, sans-serif" font-size="23" font-weight="700">ResilienceLab</text>
+    <text x="83" y="48" fill="#648094" font-family="ui-monospace, monospace" font-size="9" letter-spacing="2">MICROSERVICE PLAYGROUND</text>
+  </g>
+
+  <text x="78" y="214" fill="#EFF7FB" font-family="Inter, Arial, sans-serif" font-size="55" font-weight="750" letter-spacing="-2">Make failures</text>
+  <text x="78" y="276" fill="url(#accent)" font-family="Inter, Arial, sans-serif" font-size="55" font-weight="750" letter-spacing="-2">visible and controllable.</text>
+  <text x="81" y="325" fill="#7E97A9" font-family="Inter, Arial, sans-serif" font-size="15">A deployable Spring Cloud resilience playground with a Vue operations console.</text>
+
+  <g transform="translate(790 126)">
+    <path d="M80 78H154M226 78H288" stroke="#31566B" stroke-width="2" stroke-dasharray="5 7"/>
+    <path d="M194 108V147" stroke="#31566B" stroke-width="2" stroke-dasharray="5 7"/>
+    <g>
+      <rect width="80" height="74" rx="14" fill="#0E2638" stroke="#37647B"/>
+      <rect x="18" y="17" width="28" height="28" rx="8" fill="#173D4D"/>
+      <text x="24" y="35" fill="#68DDEA" font-family="monospace" font-size="10" font-weight="700">WEB</text>
+      <text x="18" y="60" fill="#839AAA" font-family="Arial" font-size="10">Vue</text>
+    </g>
+    <g transform="translate(154)">
+      <rect width="72" height="74" rx="14" fill="#0E2638" stroke="#4CCBDA" stroke-opacity="0.7"/>
+      <rect x="18" y="17" width="28" height="28" rx="8" fill="#153D4C"/>
+      <text x="24" y="35" fill="#68DDEA" font-family="monospace" font-size="10" font-weight="700">GW</text>
+      <text x="18" y="60" fill="#839AAA" font-family="Arial" font-size="10">Gateway</text>
+    </g>
+    <g transform="translate(288)">
+      <rect width="96" height="74" rx="14" fill="#0E2638" stroke="#37647B"/>
+      <rect x="18" y="17" width="28" height="28" rx="8" fill="#173D4D"/>
+      <text x="25" y="35" fill="#68DDEA" font-family="monospace" font-size="10" font-weight="700">OR</text>
+      <text x="18" y="60" fill="#839AAA" font-family="Arial" font-size="10">Order</text>
+    </g>
+    <g transform="translate(288 116)" filter="url(#glow)">
+      <rect width="96" height="74" rx="14" fill="#0E2638" stroke="#FF7185" stroke-opacity="0.85"/>
+      <rect x="18" y="17" width="28" height="28" rx="8" fill="#472B38"/>
+      <text x="25" y="35" fill="#FF8A9A" font-family="monospace" font-size="10" font-weight="700">IN</text>
+      <text x="18" y="60" fill="#A98C98" font-family="Arial" font-size="10">Inventory</text>
+    </g>
+    <circle cx="194" cy="78" r="4" fill="#5EE6A8"/>
+    <circle cx="336" cy="112" r="4" fill="#FF7185"/>
+  </g>
+</svg>
+

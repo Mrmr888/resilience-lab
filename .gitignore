@@ -1,0 +1,15 @@
+.idea/
+.vscode/
+*.iml
+*.log
+.env
+.m2/
+.mvn/codex-settings.xml
+.smoke-logs/
+
+**/target/
+frontend/node_modules/
+frontend/dist/
+
+.DS_Store
+Thumbs.db

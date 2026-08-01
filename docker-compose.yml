@@ -1,0 +1,86 @@
+name: resilience-lab
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: resilience_lab
+      POSTGRES_USER: resilience
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Copy .env.example to .env and set POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U resilience -d resilience_lab"]
+      interval: 5s
+      timeout: 3s
+      retries: 15
+
+  service-registry:
+    build:
+      context: .
+      args:
+        MODULE: service-registry
+    restart: unless-stopped
+    expose:
+      - "8761"
+
+  inventory-service:
+    build:
+      context: .
+      args:
+        MODULE: inventory-service
+    restart: unless-stopped
+    environment:
+      EUREKA_DEFAULT_ZONE: http://service-registry:8761/eureka/
+    depends_on:
+      - service-registry
+
+  order-service:
+    build:
+      context: .
+      args:
+        MODULE: order-service
+    restart: unless-stopped
+    environment:
+      EUREKA_DEFAULT_ZONE: http://service-registry:8761/eureka/
+      DB_URL: jdbc:postgresql://postgres:5432/resilience_lab
+      DB_USERNAME: resilience
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?Copy .env.example to .env and set POSTGRES_PASSWORD}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      service-registry:
+        condition: service_started
+
+  api-gateway:
+    build:
+      context: .
+      args:
+        MODULE: api-gateway
+    restart: unless-stopped
+    environment:
+      EUREKA_DEFAULT_ZONE: http://service-registry:8761/eureka/
+      FRONTEND_ORIGIN: http://localhost:3000
+    depends_on:
+      - service-registry
+      - inventory-service
+      - order-service
+
+  web:
+    build:
+      context: frontend
+    restart: unless-stopped
+    ports:
+      - "3000:80"
+    depends_on:
+      - api-gateway
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  postgres-data:
+
